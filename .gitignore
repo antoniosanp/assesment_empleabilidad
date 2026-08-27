@@ -1,0 +1,58 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Agent / AI files
+agents.md
+AGENTS.md
+*.agents.md
+.gemini/
+
+# Build & Compilation outputs (Maven / Gradle)
+target/
+**/target/
+build/
+**/build/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Node / Frontend (Future proofing)
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.next/
+.out/
+.npm/
+
+# IDEs and Editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*~
+.project
+.classpath
+.settings/
+.factorypath
+
+# Operating System files
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Thumbs.db
+
+# Logs & Temp files
+*.log
+logs/
+tmp/
+temp/
