@@ -1,0 +1,81 @@
+:root {
+  --color-primary: #624CE0;
+  --color-primary-dark: #5640D0;
+  --color-primary-light: #7568E8;
+  --color-secondary: #C8EEE1;
+  --color-secondary-dark: #A7DDD0;
+  --color-secondary-light: #DDF6EE;
+  --color-background: #FFFFFF;
+  --color-surface: #FAFBFC;
+  --color-surface-alt: #F1F1F2;
+  --color-header-bg: #16192C;
+  --color-footer-bg: #2D2D2D;
+  --color-text-main: #2D2D2D;
+  --color-text-surface: #16192C;
+  --color-text-muted: #676B73;
+  --color-text-placeholder: #A7A2B0;
+  --color-border: #D9DAE2;
+  --color-border-light: #EBEAEB;
+  --color-link: #624CE0;
+  --color-success: #C8EEE1;
+  --color-accent-blue: #4386C7;
+  --color-accent-pink: #E83C9B;
+  --color-pending: #F59E0B;
+  --color-failed: #EF4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  height: 100vh;
+  overflow: hidden;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input, textarea, select {
+  outline: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(98, 76, 224, 0.15);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-placeholder);
+}
