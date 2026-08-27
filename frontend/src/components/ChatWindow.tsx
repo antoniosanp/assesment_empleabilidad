@@ -21,7 +21,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
   const [nextAfterId, setNextAfterId] = useState<number | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load initial messages for active channel (Chronological: oldest top -> newest bottom)
+  // Load initial messages for active channel
   useEffect(() => {
     if (!conversation) return;
 
@@ -30,7 +30,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
 
     messageService.getChannelMessages(conversation.channelId)
       .then((res) => {
-        // Items are already in ASC order (oldest first, newest last)
         setMessages(res.items);
         setHasMore(res.hasMore);
         setNextAfterId(res.nextAfterId);
@@ -42,11 +41,27 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
         setLoading(false);
       });
 
-    // Subscribe to STOMP WebSocket real-time updates
+    // Subscribe to STOMP WebSocket real-time updates with deduplication
     websocketService.subscribeToChannel(conversation.channelId, (incomingMsg) => {
       setMessages((prev) => {
-        // Prevent duplicate messages
+        // 1. If message already exists by server ID, do nothing
         if (prev.some((m) => m.id === incomingMsg.id)) return prev;
+
+        // 2. If it matches an optimistic pending message sent by the same user, replace it
+        const optimisticIndex = prev.findIndex(
+          (m) =>
+            m.senderId === incomingMsg.senderId &&
+            m.content === incomingMsg.content &&
+            (m.tempId !== undefined || m.status === 'PENDING')
+        );
+
+        if (optimisticIndex !== -1) {
+          const updated = [...prev];
+          updated[optimisticIndex] = { ...incomingMsg, status: 'SENT' };
+          return updated;
+        }
+
+        // 3. Otherwise, append new message from another user to the bottom
         return [...prev, incomingMsg];
       });
     });
@@ -78,7 +93,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
     const content = inputText.trim();
     setInputText('');
 
-    // Optimistic UI update with PENDING state at the bottom
+    // Optimistic UI update with PENDING state
     const tempId = `temp-${Date.now()}`;
     const optimisticMsg: Message = {
       id: Date.now(),
@@ -101,7 +116,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
         content,
       });
 
-      // Update message status to SENT
+      // Update message status to SENT (or replace tempId)
       setMessages((prev) =>
         prev.map((m) => (m.tempId === tempId ? { ...savedMsg, status: 'SENT' } : m))
       );
@@ -169,7 +184,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
             const isMe = msg.senderId === currentUser?.id;
             return (
               <div
-                key={msg.id || msg.tempId}
+                key={msg.tempId || msg.id}
                 style={{
                   ...styles.messageRow,
                   justifyContent: isMe ? 'flex-end' : 'flex-start',
