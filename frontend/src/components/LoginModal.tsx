@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from '../i18n/useTranslation';
 import { authService } from '../services/authService';
 import { User } from '../types/user';
-import { KeyRound, Mail, UserCheck } from 'lucide-react';
+import { KeyRound, Mail, UserCheck, User as UserIcon, Briefcase } from 'lucide-react';
 
 interface LoginModalProps {
   onLoginSuccess: (user: User) => void;
@@ -10,27 +10,48 @@ interface LoginModalProps {
 
 export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
   const { t } = useTranslation();
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+
+  // Login state
   const [email, setEmail] = useState('admin@riwi.io');
   const [password, setPassword] = useState('123456');
+
+  // Register state
+  const [regFullName, setRegFullName] = useState('');
+  const [regJobTitle, setRegJobTitle] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await authService.login(email, password);
-      onLoginSuccess(response.user);
+      if (mode === 'login') {
+        const response = await authService.login(email, password);
+        onLoginSuccess(response.user);
+      } else {
+        if (!regFullName.trim() || !regJobTitle.trim() || !regEmail.trim() || !regPassword.trim()) {
+          setError('Todos los campos son obligatorios');
+          setLoading(false);
+          return;
+        }
+        const response = await authService.register(regEmail, regPassword, regFullName, regJobTitle);
+        onLoginSuccess(response.user);
+      }
     } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err.message || (mode === 'login' ? 'Error al iniciar sesión' : 'Error al registrar usuario'));
     } finally {
       setLoading(false);
     }
   };
 
   const selectSeedUser = (seedEmail: string) => {
+    setMode('login');
     setEmail(seedEmail);
     setPassword('123456');
   };
@@ -40,20 +61,86 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
       <div style={styles.card}>
         <div style={styles.header}>
           <img src="/riwi_logo.png" alt="Riwi Logo" style={styles.logo} />
-          <h2 style={styles.title}>{t('login')}</h2>
+          
+          {/* Mode Switch Tabs */}
+          <div style={styles.tabContainer}>
+            <button
+              style={{
+                ...styles.tabBtn,
+                borderBottom: mode === 'login' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: mode === 'login' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                fontWeight: mode === 'login' ? 600 : 400,
+              }}
+              onClick={() => {
+                setMode('login');
+                setError('');
+              }}
+            >
+              {t('login')}
+            </button>
+            <button
+              style={{
+                ...styles.tabBtn,
+                borderBottom: mode === 'register' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: mode === 'register' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                fontWeight: mode === 'register' ? 600 : 400,
+              }}
+              onClick={() => {
+                setMode('register');
+                setError('');
+              }}
+            >
+              Crear Cuenta
+            </button>
+          </div>
         </div>
 
         {error && <div style={styles.errorBox}>{error}</div>}
 
-        <form onSubmit={handleLogin} style={styles.form}>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          {mode === 'register' && (
+            <>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Nombre Completo</label>
+                <div style={styles.inputWrapper}>
+                  <UserIcon size={18} color="#A7A2B0" />
+                  <input
+                    type="text"
+                    placeholder="Ej. Carlos Mendoza"
+                    value={regFullName}
+                    onChange={(e) => setRegFullName(e.target.value)}
+                    required
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Cargo / Job Title</label>
+                <div style={styles.inputWrapper}>
+                  <Briefcase size={18} color="#A7A2B0" />
+                  <input
+                    type="text"
+                    placeholder="Ej. Desarrollador FullStack"
+                    value={regJobTitle}
+                    onChange={(e) => setRegJobTitle(e.target.value)}
+                    required
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>{t('email')}</label>
             <div style={styles.inputWrapper}>
               <Mail size={18} color="#A7A2B0" />
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ejemplo@riwi.io"
+                value={mode === 'login' ? email : regEmail}
+                onChange={(e) => (mode === 'login' ? setEmail(e.target.value) : setRegEmail(e.target.value))}
                 required
                 style={styles.input}
               />
@@ -66,8 +153,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               <KeyRound size={18} color="#A7A2B0" />
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                value={mode === 'login' ? password : regPassword}
+                onChange={(e) => (mode === 'login' ? setPassword(e.target.value) : setRegPassword(e.target.value))}
                 required
                 style={styles.input}
               />
@@ -75,39 +163,41 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
           </div>
 
           <button type="submit" style={styles.submitBtn} disabled={loading}>
-            {loading ? '...' : t('login')}
+            {loading ? '...' : mode === 'login' ? t('login') : 'Registrarse'}
           </button>
         </form>
 
-        <div style={styles.seedSection}>
-          <p style={styles.seedTitle}>{t('select_user')}</p>
-          <div style={styles.seedGrid}>
-            <button
-              style={styles.seedBtn}
-              onClick={() => selectSeedUser('admin@riwi.io')}
-            >
-              <UserCheck size={14} /> Admin Sistema
-            </button>
-            <button
-              style={styles.seedBtn}
-              onClick={() => selectSeedUser('maria.gomez@riwi.io')}
-            >
-              <UserCheck size={14} /> Maria Gomez (Backend)
-            </button>
-            <button
-              style={styles.seedBtn}
-              onClick={() => selectSeedUser('juan.perez@riwi.io')}
-            >
-              <UserCheck size={14} /> Juan Perez (Frontend)
-            </button>
-            <button
-              style={styles.seedBtn}
-              onClick={() => selectSeedUser('pedro.soporte@riwi.io')}
-            >
-              <UserCheck size={14} /> Pedro Soporte (IT)
-            </button>
+        {mode === 'login' && (
+          <div style={styles.seedSection}>
+            <p style={styles.seedTitle}>{t('select_user')}</p>
+            <div style={styles.seedGrid}>
+              <button
+                style={styles.seedBtn}
+                onClick={() => selectSeedUser('admin@riwi.io')}
+              >
+                <UserCheck size={14} /> Admin Sistema
+              </button>
+              <button
+                style={styles.seedBtn}
+                onClick={() => selectSeedUser('maria.gomez@riwi.io')}
+              >
+                <UserCheck size={14} /> Maria Gomez (Backend)
+              </button>
+              <button
+                style={styles.seedBtn}
+                onClick={() => selectSeedUser('juan.perez@riwi.io')}
+              >
+                <UserCheck size={14} /> Juan Perez (Frontend)
+              </button>
+              <button
+                style={styles.seedBtn}
+                onClick={() => selectSeedUser('pedro.soporte@riwi.io')}
+              >
+                <UserCheck size={14} /> Pedro Soporte (IT)
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -131,20 +221,30 @@ const styles: Record<string, React.CSSProperties> = {
     width: '420px',
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
-    padding: '32px',
+    padding: '28px 32px',
     boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
   },
   header: {
     textAlign: 'center',
-    marginBottom: '24px',
+    marginBottom: '20px',
   },
   logo: {
-    height: '44px',
+    height: '40px',
     marginBottom: '12px',
   },
-  title: {
-    fontSize: '22px',
-    color: 'var(--color-header-bg)',
+  tabContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '24px',
+    borderBottom: '1px solid var(--color-border-light)',
+    paddingBottom: '8px',
+  },
+  tabBtn: {
+    background: 'none',
+    border: 'none',
+    fontSize: '15px',
+    padding: '6px 12px',
+    cursor: 'pointer',
   },
   errorBox: {
     backgroundColor: '#FEE2E2',
@@ -157,15 +257,15 @@ const styles: Record<string, React.CSSProperties> = {
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '14px',
   },
   inputGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
+    gap: '4px',
   },
   label: {
-    fontSize: '13px',
+    fontSize: '12px',
     fontWeight: 600,
     color: 'var(--color-text-main)',
   },
@@ -181,8 +281,9 @@ const styles: Record<string, React.CSSProperties> = {
   input: {
     border: 'none',
     width: '100%',
-    padding: '12px 0',
+    padding: '10px 0',
     backgroundColor: 'transparent',
+    fontSize: '14px',
   },
   submitBtn: {
     backgroundColor: 'var(--color-primary)',
@@ -191,17 +292,18 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '8px',
     fontSize: '15px',
     fontWeight: 600,
-    marginTop: '8px',
+    marginTop: '6px',
+    cursor: 'pointer',
   },
   seedSection: {
-    marginTop: '24px',
+    marginTop: '20px',
     borderTop: '1px solid var(--color-border-light)',
-    paddingTop: '16px',
+    paddingTop: '14px',
   },
   seedTitle: {
     fontSize: '12px',
     color: 'var(--color-text-muted)',
-    marginBottom: '10px',
+    marginBottom: '8px',
     textAlign: 'center',
   },
   seedGrid: {
@@ -220,5 +322,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '11px',
     textAlign: 'left',
     border: '1px solid var(--color-border-light)',
+    cursor: 'pointer',
   },
 };
