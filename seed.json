@@ -27,7 +27,7 @@
       {
         "rw_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
         "rw_email": "admin@riwi.io",
-        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_password_hash": "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
         "rw_full_name": "Admin Sistema",
         "rw_job_title": "System Administrator & Security Lead",
         "rw_role": "ADMIN",
@@ -36,7 +36,7 @@
       {
         "rw_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
         "rw_email": "juan.perez@riwi.io",
-        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_password_hash": "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
         "rw_full_name": "Juan Perez",
         "rw_job_title": "Senior Frontend Developer",
         "rw_role": "MEMBER",
@@ -45,7 +45,7 @@
       {
         "rw_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
         "rw_email": "maria.gomez@riwi.io",
-        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_password_hash": "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
         "rw_full_name": "Maria Gomez",
         "rw_job_title": "Lead Backend Engineer",
         "rw_role": "MEMBER",
@@ -54,7 +54,7 @@
       {
         "rw_id": "d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44",
         "rw_email": "pedro.soporte@riwi.io",
-        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_password_hash": "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
         "rw_full_name": "Pedro Soporte",
         "rw_job_title": "IT Support Specialist",
         "rw_role": "MEMBER",
