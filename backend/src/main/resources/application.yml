@@ -9,9 +9,9 @@ spring:
     name: messaging-platform
   
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:bd_nombre_apellido_clan}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5434}/${POSTGRES_DB:bd_antonio_pulgarin_hamilton}
     username: ${POSTGRES_USER:app_user}
-    password: ${POSTGRES_PASSWORD:app_password_secret_123}
+    password: ${POSTGRES_PASSWORD:12345678}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -28,6 +28,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    placeholder-replacement: false
     locations: classpath:db/migration
 
 jwt:

@@ -209,7 +209,7 @@ BEGIN
         m.rw_content,
         regexp_replace(
             m.rw_content, 
-            '(' || regexp_replace(p_search_term, '([.*+?^${}()|[\]\\])', '\\\1', 'g') || ')', 
+            '(' || regexp_replace(p_search_term, '([.*+?^$()|[\]\\])', '\\\1', 'g') || ')', 
             '<mark>\1</mark>', 
             'gi'
         ) AS rw_highlighted_snippet,
