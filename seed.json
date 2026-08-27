@@ -1,0 +1,157 @@
+{
+  "project": "Riwi Internal Messaging Platform",
+  "version": "1.0.0",
+  "normalization_documentation": {
+    "1FN_first_normal_form": {
+      "status": "COMPLIES",
+      "justification": "All attributes are atomic. Message contents, user profiles, and channel metadata are stored in non-composite, single-valued columns. Repeating groups such as channel members or message lists have been moved into dedicated child tables (rw_channel_members and rw_messages)."
+    },
+    "2FN_second_normal_form": {
+      "status": "COMPLIES",
+      "justification": "All non-key attributes fully depend on the complete primary key of their respective tables. In rw_channel_members, attributes like rw_member_role and rw_last_read_at depend on the entire primary key and composite foreign keys (rw_channel_id, rw_user_id), with no partial dependencies."
+    },
+    "3FN_third_normal_form": {
+      "status": "COMPLIES",
+      "justification": "All transitive dependencies have been eliminated. User job titles, roles, and emails depend solely on the user entity (rw_users). Messages reference user and channel IDs via foreign keys without duplicating user profile details or channel metadata within the message records."
+    },
+    "implicit_business_rules": [
+      "Row Level Security (RLS) is strictly enforced in PostgreSQL using app.current_user_id.",
+      "Physical deletion of messages is strictly forbidden; soft deletion via rw_is_deleted and rw_deleted_at must be used.",
+      "User authentication relies on BCrypt password hashes ($2a$10$...). Plaintext passwords are NEVER stored.",
+      "All timestamps are stored as timestamptz in UTC.",
+      "AI Copilot RAG queries can ONLY retrieve context from channels where the authenticated actor is an active member."
+    ]
+  },
+  "corpus": {
+    "users": [
+      {
+        "rw_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        "rw_email": "admin@riwi.io",
+        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_full_name": "Admin Sistema",
+        "rw_job_title": "System Administrator & Security Lead",
+        "rw_role": "ADMIN",
+        "rw_is_active": true
+      },
+      {
+        "rw_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+        "rw_email": "juan.perez@riwi.io",
+        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_full_name": "Juan Perez",
+        "rw_job_title": "Senior Frontend Developer",
+        "rw_role": "MEMBER",
+        "rw_is_active": true
+      },
+      {
+        "rw_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+        "rw_email": "maria.gomez@riwi.io",
+        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_full_name": "Maria Gomez",
+        "rw_job_title": "Lead Backend Engineer",
+        "rw_role": "MEMBER",
+        "rw_is_active": true
+      },
+      {
+        "rw_id": "d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44",
+        "rw_email": "pedro.soporte@riwi.io",
+        "rw_password_hash": "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G",
+        "rw_full_name": "Pedro Soporte",
+        "rw_job_title": "IT Support Specialist",
+        "rw_role": "MEMBER",
+        "rw_is_active": true
+      }
+    ],
+    "channels": [
+      {
+        "rw_id": "11111111-1111-1111-1111-111111111111",
+        "rw_name": "General",
+        "rw_type": "PUBLIC",
+        "rw_created_by": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+      },
+      {
+        "rw_id": "22222222-2222-2222-2222-222222222222",
+        "rw_name": "Desarrollo Backend",
+        "rw_type": "PRIVATE",
+        "rw_created_by": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33"
+      },
+      {
+        "rw_id": "33333333-3333-3333-3333-333333333333",
+        "rw_name": "Directo Juan-Maria",
+        "rw_type": "DIRECT",
+        "rw_created_by": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22"
+      }
+    ],
+    "channel_members": [
+      {
+        "rw_channel_id": "11111111-1111-1111-1111-111111111111",
+        "rw_user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        "rw_member_role": "OWNER"
+      },
+      {
+        "rw_channel_id": "11111111-1111-1111-1111-111111111111",
+        "rw_user_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+        "rw_member_role": "MEMBER"
+      },
+      {
+        "rw_channel_id": "11111111-1111-1111-1111-111111111111",
+        "rw_user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+        "rw_member_role": "MEMBER"
+      },
+      {
+        "rw_channel_id": "11111111-1111-1111-1111-111111111111",
+        "rw_user_id": "d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44",
+        "rw_member_role": "MEMBER"
+      },
+      {
+        "rw_channel_id": "22222222-2222-2222-2222-222222222222",
+        "rw_user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+        "rw_member_role": "OWNER"
+      },
+      {
+        "rw_channel_id": "22222222-2222-2222-2222-222222222222",
+        "rw_user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        "rw_member_role": "ADMIN"
+      },
+      {
+        "rw_channel_id": "33333333-3333-3333-3333-333333333333",
+        "rw_user_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+        "rw_member_role": "MEMBER"
+      },
+      {
+        "rw_channel_id": "33333333-3333-3333-3333-333333333333",
+        "rw_user_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+        "rw_member_role": "MEMBER"
+      }
+    ],
+    "messages": [
+      {
+        "rw_id": 1,
+        "rw_channel_id": "11111111-1111-1111-1111-111111111111",
+        "rw_sender_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        "rw_content": "Bienvenidos a la nueva plataforma de mensajería interna de Riwi Co. S.A.S.",
+        "rw_status": "SENT"
+      },
+      {
+        "rw_id": 2,
+        "rw_channel_id": "11111111-1111-1111-1111-111111111111",
+        "rw_sender_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+        "rw_content": "¡Hola equipo! Excelente iniciativa para mejorar la comunicación interna.",
+        "rw_status": "SENT"
+      },
+      {
+        "rw_id": 3,
+        "rw_channel_id": "22222222-2222-2222-2222-222222222222",
+        "rw_sender_id": "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+        "rw_content": "Recordatorio privado: La migración a PostgreSQL 15 con Row Level Security y pgvector fue completada con éxito.",
+        "rw_status": "SENT"
+      },
+      {
+        "rw_id": 4,
+        "rw_channel_id": "33333333-3333-3333-3333-333333333333",
+        "rw_sender_id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+        "rw_content": "Hola Maria, te envié los diseños actualizados del frontend por este chat directo.",
+        "rw_status": "SENT"
+      }
+    ]
+  }
+}
