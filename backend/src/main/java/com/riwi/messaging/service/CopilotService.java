@@ -32,9 +32,9 @@ public class CopilotService {
         REGLAS INVIOLABLES DE SEGURIDAD Y HONESTIDAD:
         1. Responde ÚNICAMENTE utilizando el contexto de mensajes permitidos proporcionado.
         2. Conoces al usuario autenticado, su nombre y su cargo.
-        3. Si la pregunta está fuera del alcance del contexto o el usuario no tiene permisos sobre el canal relevante, DEBES NEGARTES EXPLÍCITAMENTE diciendo:
+        3. Si la pregunta no se puede responder con el contexto proporcionado o el usuario no tiene acceso a esa información en sus canales permitidos, DEBES NEGARTES EXPLÍCITAMENTE diciendo:
            "No poseo permisos o contexto suficiente en tus canales autorizados para responder esta consulta."
-        4. Cita siempre los mensajes fuente y responde con absoluta honestidad.
+        4. Cita los mensajes fuente de donde sacaste la información y responde con absoluta honestidad.
         """;
 
     private final MessageRepository messageRepository;
@@ -46,15 +46,14 @@ public class CopilotService {
     public CopilotResponseDTO processQuery(CopilotQueryRequest request, UserPrincipal currentUser) {
         String query = request.getQuery().trim();
 
-        // Retrieve RAG context from SQL (RLS-enforced: only channels where currentUser is member)
+        // Retrieve RAG context from SQL (RLS-enforced: top recent messages from user's authorized channels)
         List<CopilotContextProjection> contextMessages = messageRepository.findCopilotContextTextFallback(
-                currentUser.getId(), query, 5
+                currentUser.getId(), query, 15
         );
 
-        // Check for explicit refusal when no context is found
+        // Check for explicit refusal when no context is accessible
         if (contextMessages.isEmpty()) {
             String refusalMessage = "No poseo permisos o contexto suficiente en tus canales autorizados para responder esta consulta.";
-            
             saveUsageLog(currentUser.getId(), query, refusalMessage, 10);
 
             return CopilotResponseDTO.builder()
@@ -65,7 +64,7 @@ public class CopilotService {
                     .build();
         }
 
-        // Generate response using interchangeable AI provider (Google AI Studio / Gemini / Mock)
+        // Generate response using interchangeable AI provider (Google AI Studio / Gemini 3.6 Flash)
         AiProviderService.AiCompletionResult result = aiProviderService.generateCompletion(
                 SYSTEM_PROMPT,
                 query,
@@ -73,8 +72,12 @@ public class CopilotService {
                 currentUser
         );
 
+        boolean isRefused = result.answer().contains("No poseo permisos") || result.answer().contains("insuficiente");
+
         // Build source citations
-        List<CopilotSourceCitationDTO> citations = contextMessages.stream()
+        List<CopilotSourceCitationDTO> citations = isRefused
+                ? List.of()
+                : contextMessages.stream()
                 .map(msg -> CopilotSourceCitationDTO.builder()
                         .messageId(msg.getMessageId())
                         .channelId(msg.getChannelId())
@@ -91,7 +94,7 @@ public class CopilotService {
                 .answer(result.answer())
                 .citations(citations)
                 .tokensUsed(result.tokensUsed())
-                .isRefusedDueToPermissionsOrContext(false)
+                .isRefusedDueToPermissionsOrContext(isRefused)
                 .build();
     }
 
@@ -116,13 +119,17 @@ public class CopilotService {
     private void saveUsageLog(UUID userId, String prompt, String response, int tokensUsed) {
         UserEntity user = userRepository.findById(userId).orElse(null);
         if (user != null) {
-            CopilotUsageLogEntity logEntity = CopilotUsageLogEntity.builder()
-                    .user(user)
-                    .prompt(prompt)
-                    .response(response)
-                    .tokensUsed(tokensUsed)
-                    .build();
+            CopilotUsageLogEntity logEntity = LogEntity(user, prompt, response, tokensUsed);
             copilotUsageLogRepository.save(logEntity);
         }
+    }
+
+    private CopilotUsageLogEntity LogEntity(UserEntity user, String prompt, String response, int tokensUsed) {
+        return CopilotUsageLogEntity.builder()
+                .user(user)
+                .prompt(prompt)
+                .response(response)
+                .tokensUsed(tokensUsed)
+                .build();
     }
 }

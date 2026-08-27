@@ -80,8 +80,16 @@ public interface MessageRepository extends JpaRepository<MessageEntity, Long> {
         INNER JOIN rw_channel_members cm ON c.rw_id = cm.rw_channel_id
         WHERE cm.rw_user_id = :userId
           AND m.rw_is_deleted = false
-          AND m.rw_content ILIKE '%' || :queryText || '%'
-        ORDER BY m.rw_created_at DESC
+          AND (
+              :queryText IS NULL 
+              OR :queryText = '' 
+              OR m.rw_content ILIKE '%' || :queryText || '%'
+              OR EXISTS (
+                  SELECT 1 FROM unnest(string_to_array(:queryText, ' ')) word 
+                  WHERE length(word) >= 3 AND m.rw_content ILIKE '%' || word || '%'
+              )
+          )
+        ORDER BY m.rw_created_at DESC, m.rw_id DESC
         LIMIT :matchCount
         """, nativeQuery = true)
     List<CopilotContextProjection> findCopilotContextTextFallback(

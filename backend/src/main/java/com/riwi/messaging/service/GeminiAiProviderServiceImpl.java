@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +27,44 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
             @Value("${gemini.api-key:${openai.api-key:}}") String apiKey,
             @Value("${gemini.model:${openai.model:gemini-3.6-flash}}") String modelName
     ) {
-        this.apiKey = apiKey;
-        this.modelName = modelName;
+        String effectiveKey = apiKey;
+        if (effectiveKey == null || effectiveKey.isBlank() || effectiveKey.contains("your_")) {
+            effectiveKey = System.getProperty("OPENAI_API_KEY", System.getenv("OPENAI_API_KEY"));
+        }
+        if (effectiveKey == null || effectiveKey.isBlank()) {
+            effectiveKey = readKeyFromEnvFile();
+        }
+
+        this.apiKey = effectiveKey;
+        this.modelName = (modelName != null && !modelName.isBlank()) ? modelName : "gemini-3.6-flash";
         this.restClient = RestClient.builder().build();
+
+        if (this.apiKey != null && !this.apiKey.isBlank()) {
+            log.info("GeminiAiProviderServiceImpl initialized with LIVE Google AI Studio key (Model: {})", this.modelName);
+        } else {
+            log.warn("Gemini API key is missing. AI queries will use fallback mock.");
+        }
+    }
+
+    private static String readKeyFromEnvFile() {
+        try {
+            Path envPath = Path.of(".env");
+            if (!Files.exists(envPath)) {
+                envPath = Path.of("../.env");
+            }
+            if (Files.exists(envPath)) {
+                List<String> lines = Files.readAllLines(envPath);
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.startsWith("OPENAI_API_KEY=") || line.startsWith("GEMINI_API_KEY=")) {
+                        return line.substring(line.indexOf('=') + 1).trim();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Could not read API key from .env file: {}", e.getMessage());
+        }
+        return null;
     }
 
     @Override
@@ -58,7 +95,7 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
         );
 
         if (apiKey == null || apiKey.isBlank() || apiKey.contains("your_")) {
-            log.warn("Gemini API key is not configured. Falling back to mock structured response.");
+            log.warn("Gemini API key is not configured in environment or .env. Falling back to mock response.");
             return new AiCompletionResult(
                     "Respuesta de prueba (Gemini AI Studio): Basado en los " + contextMessages.size() + " mensajes recuperados para " + authenticatedUser.getFullName() + ", confirmo la consulta sobre: " + userQuery,
                     150
@@ -66,6 +103,7 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
         }
 
         try {
+            log.info("Sending live query to Google AI Studio Gemini API (Model: {})", modelName);
             String url = String.format("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", modelName, apiKey);
 
             Map<String, Object> requestBody = Map.of(
