@@ -47,14 +47,14 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
       if (newChannelType === 'DIRECT') {
         const targetUser = availableUsers.find((u) => u.id === selectedTargetUserId);
         if (!targetUser) {
-          alert('Por favor selecciona un usuario para el chat directo.');
+          alert(t('select_user_alert'));
           setCreating(false);
           return;
         }
         channelName = `Chat con ${targetUser.fullName}`;
         memberIds = [selectedTargetUserId];
       } else if (!channelName) {
-        alert('Por favor ingresa un nombre para el canal.');
+        alert(t('enter_channel_name_alert'));
         setCreating(false);
         return;
       }
@@ -70,7 +70,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
       setShowModal(false);
       onChannelCreated();
     } catch (err: any) {
-      alert(err.message || 'Error al crear canal o chat directo');
+      alert(err.message || t('create_channel_error'));
     } finally {
       setCreating(false);
     }
@@ -139,33 +139,33 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
           <div style={styles.modalCard}>
             <div style={styles.modalHeader}>
               <Users size={20} color="var(--color-primary)" />
-              <h3>{t('new_channel')} / Chat Directo</h3>
+              <h3>{t('new_channel')}</h3>
             </div>
 
             <form onSubmit={handleCreateChannel} style={styles.modalForm}>
               <div style={styles.formGroup}>
-                <label style={styles.label}>Tipo de Conversación:</label>
+                <label style={styles.label}>{t('conversation_type')}</label>
                 <select
                   value={newChannelType}
                   onChange={(e) => setNewChannelType(e.target.value as ChannelType)}
                   style={styles.select}
                 >
-                  <option value="PUBLIC">📢 Canal Público</option>
-                  <option value="PRIVATE">🔒 Canal Privado</option>
-                  <option value="DIRECT">💬 Chat Directo con Usuario</option>
+                  <option value="PUBLIC">{t('public_channel')}</option>
+                  <option value="PRIVATE">{t('private_channel')}</option>
+                  <option value="DIRECT">{t('direct_chat')}</option>
                 </select>
               </div>
 
               {newChannelType === 'DIRECT' ? (
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Selecciona el usuario de Riwi:</label>
+                  <label style={styles.label}>{t('select_target_user')}</label>
                   <select
                     value={selectedTargetUserId}
                     onChange={(e) => setSelectedTargetUserId(e.target.value)}
                     required
                     style={styles.select}
                   >
-                    <option value="">-- Elige un usuario --</option>
+                    <option value="">{t('choose_user')}</option>
                     {availableUsers.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.fullName} ({u.jobTitle || u.email})
@@ -175,10 +175,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                 </div>
               ) : (
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Nombre del Canal:</label>
+                  <label style={styles.label}>{t('channel_name')}</label>
                   <input
                     type="text"
-                    placeholder="Ej. Proyecto Frontend"
+                    placeholder={t('channel_name_placeholder')}
                     value={newChannelName}
                     onChange={(e) => setNewChannelName(e.target.value)}
                     required
@@ -189,10 +189,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
 
               <div style={styles.modalActions}>
                 <button type="button" onClick={() => setShowModal(false)} style={styles.cancelBtn}>
-                  Cancelar
+                  {t('cancel')}
                 </button>
                 <button type="submit" disabled={creating} style={styles.createSubmit}>
-                  {creating ? 'Creando...' : 'Iniciar'}
+                  {creating ? t('creating') : t('start')}
                 </button>
               </div>
             </form>

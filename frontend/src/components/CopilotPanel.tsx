@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { CopilotResponse } from '../types/copilot';
 import { useTranslation } from '../i18n/useTranslation';
 import { copilotService } from '../services/copilotService';
-import { Bot, Sparkles, ShieldAlert, BookOpen, Send, Zap } from 'lucide-react';
+import { CopilotResponse } from '../types/copilot';
+import { Bot, Sparkles, ShieldAlert, BookOpen, Zap } from 'lucide-react';
 
 export const CopilotPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -15,14 +15,12 @@ export const CopilotPanel: React.FC = () => {
     if (!query.trim()) return;
 
     setLoading(true);
-    setCopilotResponse(null);
-
     try {
       const res = await copilotService.queryCopilot({ query: query.trim() });
       setCopilotResponse(res);
     } catch (err: any) {
       setCopilotResponse({
-        answer: err.message || 'Error al consultar al Copiloto',
+        answer: err.message || t('copilot_error'),
         citations: [],
         tokensUsed: 0,
         isRefusedDueToPermissionsOrContext: true,
@@ -56,7 +54,7 @@ export const CopilotPanel: React.FC = () => {
         />
         <button type="submit" style={styles.askBtn} disabled={loading || !query.trim()}>
           {loading ? (
-            'Procesando...'
+            t('processing')
           ) : (
             <>
               <Sparkles size={16} /> {t('copilot_ask')}
@@ -70,7 +68,7 @@ export const CopilotPanel: React.FC = () => {
         {loading && (
           <div style={styles.loadingBox}>
             <Sparkles size={24} color="var(--color-primary)" style={{ animation: 'spin 2s linear infinite' }} />
-            <p>Consultando contexto autorizado en PostgreSQL con RLS y Gemini...</p>
+            <p>{t('copilot_thinking')}</p>
           </div>
         )}
 
@@ -89,7 +87,7 @@ export const CopilotPanel: React.FC = () => {
               <div style={styles.answerCard}>
                 <div style={styles.answerHeader}>
                   <Bot size={18} color="var(--color-primary)" />
-                  <h4>Respuesta del Copiloto (Gemini 3.6 Flash)</h4>
+                  <h4>{t('copilot_response_header')}</h4>
                 </div>
                 <p style={styles.answerText}>{copilotResponse.answer}</p>
               </div>
@@ -138,9 +136,8 @@ const styles: Record<string, React.CSSProperties> = {
     height: '100%',
   },
   header: {
-    padding: '16px',
+    padding: '16px 20px',
     borderBottom: '1px solid var(--color-border-light)',
-    backgroundColor: '#FFFFFF',
   },
   titleWrapper: {
     display: 'flex',
@@ -157,44 +154,47 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--color-text-muted)',
   },
   form: {
-    padding: '16px',
+    padding: '16px 20px',
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
-    backgroundColor: '#FFFFFF',
     borderBottom: '1px solid var(--color-border-light)',
   },
   textarea: {
-    resize: 'none',
-    fontSize: '13px',
     width: '100%',
+    padding: '10px 12px',
+    fontSize: '13px',
+    borderRadius: '8px',
+    resize: 'none',
   },
   askBtn: {
     backgroundColor: 'var(--color-primary)',
     color: '#FFFFFF',
-    padding: '10px',
+    padding: '8px 14px',
     borderRadius: '6px',
     fontSize: '13px',
     fontWeight: 600,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
+    gap: '6px',
+    cursor: 'pointer',
   },
   resultBox: {
     flex: 1,
     overflowY: 'auto',
-    padding: '16px',
+    padding: '16px 20px',
   },
   loadingBox: {
-    textAlign: 'center',
-    padding: '30px 10px',
-    color: 'var(--color-text-muted)',
-    fontSize: '13px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
+    height: '150px',
     gap: '12px',
+    color: 'var(--color-text-muted)',
+    fontSize: '13px',
+    textAlign: 'center',
   },
   responseContainer: {
     display: 'flex',
@@ -202,7 +202,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '16px',
   },
   refusalCard: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FEF2F2',
     border: '1px solid #FCA5A5',
     borderRadius: '8px',
     padding: '14px',
@@ -211,8 +211,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    marginBottom: '8px',
     color: '#DC2626',
-    marginBottom: '6px',
   },
   refusalText: {
     fontSize: '13px',
@@ -220,11 +220,10 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: '1.4',
   },
   answerCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'var(--color-surface-alt)',
     border: '1px solid var(--color-border)',
     borderRadius: '8px',
     padding: '14px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
   answerHeader: {
     display: 'flex',
@@ -237,19 +236,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '13px',
     lineHeight: '1.5',
     color: 'var(--color-text-main)',
-    whiteSpace: 'pre-line',
+    whiteSpace: 'pre-wrap',
   },
   citationsSection: {
-    backgroundColor: 'var(--color-surface-alt)',
-    borderRadius: '8px',
-    padding: '12px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
   },
   citationsTitle: {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    marginBottom: '8px',
-    fontSize: '12px',
     color: 'var(--color-text-muted)',
   },
   citationsList: {
@@ -259,27 +256,28 @@ const styles: Record<string, React.CSSProperties> = {
   },
   citationCard: {
     backgroundColor: '#FFFFFF',
-    padding: '8px 10px',
-    borderRadius: '6px',
     border: '1px solid var(--color-border-light)',
+    padding: '10px 12px',
+    borderRadius: '6px',
+    fontSize: '12px',
   },
   citationMeta: {
     display: 'flex',
-    gap: '6px',
+    justifyContent: 'space-between',
+    marginBottom: '4px',
     fontSize: '11px',
-    marginBottom: '2px',
+    fontWeight: 'bold',
   },
   citChannel: {
-    fontWeight: 'bold',
     color: 'var(--color-primary)',
   },
   citSender: {
     color: 'var(--color-text-muted)',
   },
   citSnippet: {
-    fontSize: '12px',
     fontStyle: 'italic',
     color: 'var(--color-text-main)',
+    lineHeight: '1.3',
   },
   tokenFooter: {
     display: 'flex',
@@ -287,6 +285,6 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '6px',
     fontSize: '11px',
     color: 'var(--color-text-muted)',
-    alignSelf: 'flex-end',
+    marginTop: '8px',
   },
 };

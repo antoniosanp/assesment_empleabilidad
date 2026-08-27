@@ -176,7 +176,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
         )}
 
         {loading ? (
-          <div style={styles.loadingText}>Cargando mensajes...</div>
+          <div style={styles.loadingText}>{t('loading_messages')}</div>
         ) : messages.length === 0 ? (
           <div style={styles.noMessagesText}>{t('no_messages')}</div>
         ) : (

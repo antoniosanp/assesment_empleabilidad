@@ -36,7 +36,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
         onLoginSuccess(response.user);
       } else {
         if (!regFullName.trim() || !regJobTitle.trim() || !regEmail.trim() || !regPassword.trim()) {
-          setError('Todos los campos son obligatorios');
+          setError(t('all_fields_required'));
           setLoading(false);
           return;
         }
@@ -44,7 +44,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
         onLoginSuccess(response.user);
       }
     } catch (err: any) {
-      setError(err.message || (mode === 'login' ? 'Error al iniciar sesión' : 'Error al registrar usuario'));
+      setError(err.message || (mode === 'login' ? t('login_error') : t('register_error')));
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 setError('');
               }}
             >
-              Crear Cuenta
+              {t('register')}
             </button>
           </div>
         </div>
@@ -101,7 +101,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
           {mode === 'register' && (
             <>
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Nombre Completo</label>
+                <label style={styles.label}>{t('full_name')}</label>
                 <div style={styles.inputWrapper}>
                   <UserIcon size={18} color="#A7A2B0" />
                   <input
@@ -116,12 +116,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               </div>
 
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Cargo / Job Title</label>
+                <label style={styles.label}>{t('job_title')}</label>
                 <div style={styles.inputWrapper}>
                   <Briefcase size={18} color="#A7A2B0" />
                   <input
                     type="text"
-                    placeholder="Ej. Desarrollador FullStack"
+                    placeholder="Ej. FullStack Developer"
                     value={regJobTitle}
                     onChange={(e) => setRegJobTitle(e.target.value)}
                     required
@@ -163,7 +163,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
           </div>
 
           <button type="submit" style={styles.submitBtn} disabled={loading}>
-            {loading ? '...' : mode === 'login' ? t('login') : 'Registrarse'}
+            {loading ? '...' : mode === 'login' ? t('login') : t('register')}
           </button>
         </form>
 

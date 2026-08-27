@@ -59,9 +59,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClos
           <div style={styles.detailItem}>
             <CheckCircle2 size={16} color="var(--color-secondary-dark)" />
             <div style={styles.detailText}>
-              <span style={styles.label}>Estado de Cuenta</span>
+              <span style={styles.label}>{t('user_status')}</span>
               <span style={styles.value}>
-                {user.isActive ? '🟢 Activa (Stateless JWT Session)' : '🔴 Inactiva'}
+                {user.isActive ? `🟢 ${t('active')}` : `🔴 ${t('inactive')}`}
               </span>
             </div>
           </div>
@@ -69,7 +69,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClos
           <div style={styles.detailItem}>
             <Calendar size={16} color="var(--color-primary)" />
             <div style={styles.detailText}>
-              <span style={styles.label}>Fecha de Registro</span>
+              <span style={styles.label}>{t('created_at')}</span>
               <span style={styles.value}>
                 {new Date(user.createdAt).toLocaleDateString()}
               </span>

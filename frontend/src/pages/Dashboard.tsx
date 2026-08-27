@@ -8,13 +8,15 @@ import { CopilotPanel } from '../components/CopilotPanel';
 import { UserProfileModal } from '../components/UserProfileModal';
 import { channelService } from '../services/channelService';
 import { websocketService } from '../services/websocketService';
-import { MessageSquare, Bot, User as UserIcon } from 'lucide-react';
+import { useTranslation } from '../i18n/useTranslation';
+import { MessageSquare, Bot } from 'lucide-react';
 
 interface DashboardProps {
   user: User;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState<UserConversation[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -81,19 +83,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           style={{ ...styles.mobileNavBtn, color: mobileTab === 'channels' ? 'var(--color-primary)' : '#676B73' }}
           onClick={() => setMobileTab('channels')}
         >
-          <MessageSquare size={20} /> Canales
+          <MessageSquare size={20} /> {t('nav_channels')}
         </button>
         <button
           style={{ ...styles.mobileNavBtn, color: mobileTab === 'chat' ? 'var(--color-primary)' : '#676B73' }}
           onClick={() => setMobileTab('chat')}
         >
-          <MessageSquare size={20} /> Chat
+          <MessageSquare size={20} /> {t('nav_chat')}
         </button>
         <button
           style={{ ...styles.mobileNavBtn, color: mobileTab === 'copilot' ? 'var(--color-primary)' : '#676B73' }}
           onClick={() => setMobileTab('copilot')}
         >
-          <Bot size={20} /> Copiloto IA
+          <Bot size={20} /> {t('nav_copilot')}
         </button>
       </div>
 

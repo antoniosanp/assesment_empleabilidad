@@ -36,6 +36,7 @@ public class CopilotService {
         4. Si el usuario pregunta específicamente por información privada, temas o proyectos de canales a los que NO pertenece o sobre los que no se te ha proporcionado contexto en sus canales autorizados, DEBES responder explícitamente:
            "No poseo permisos o contexto suficiente en tus canales autorizados para responder esta consulta."
         5. Cita siempre los mensajes fuente (Mensaje ID y Canal) cuando tu respuesta se base en las conversaciones del equipo.
+        6. Responde SIEMPRE en el mismo idioma en que el usuario formula su pregunta (si pregunta en inglés, responde en inglés; si en español, responde en español).
         """;
 
     private final MessageRepository messageRepository;
