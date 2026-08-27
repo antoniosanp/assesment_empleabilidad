@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +20,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Messages", description = "Endpoints for channel message history, keyset pagination, term search, soft edit and soft delete")
 public class MessageController {
 
     private final MessageService messageService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/channels/{channelId}/messages")
     @Operation(summary = "Get channel message history (Keyset Pagination)", description = "Invokes SQL function rw_fn_get_channel_messages for keyset pagination without OFFSET")
@@ -35,14 +39,25 @@ public class MessageController {
     }
 
     @PostMapping("/channels/{channelId}/messages")
-    @Operation(summary = "Send message", description = "Sends a new message to a channel with RLS permission verification")
+    @Operation(summary = "Send message", description = "Sends a new message to a channel with RLS permission verification and STOMP WebSocket broadcast")
     public ResponseEntity<MessageDTO> sendMessage(
             @PathVariable UUID channelId,
             @Valid @RequestBody SendMessageRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser
     ) {
         request.setChannelId(channelId);
-        return new ResponseEntity<>(messageService.sendMessage(request, currentUser), HttpStatus.CREATED);
+        MessageDTO savedMessage = messageService.sendMessage(request, currentUser);
+
+        // Broadcast to STOMP WebSocket topic in real-time
+        try {
+            String destination = "/topic/channels/" + channelId;
+            messagingTemplate.convertAndSend(destination, savedMessage);
+            log.info("Broadcasted message ID {} via WebSocket to {}", savedMessage.getId(), destination);
+        } catch (Exception e) {
+            log.error("Failed to broadcast WebSocket message: {}", e.getMessage(), e);
+        }
+
+        return new ResponseEntity<>(savedMessage, HttpStatus.CREATED);
     }
 
     @PutMapping("/messages/{id}")
@@ -52,7 +67,16 @@ public class MessageController {
             @RequestBody SendMessageRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser
     ) {
-        return ResponseEntity.ok(messageService.editMessage(id, request.getContent(), currentUser));
+        MessageDTO updatedMessage = messageService.editMessage(id, request.getContent(), currentUser);
+
+        try {
+            String destination = "/topic/channels/" + updatedMessage.getChannelId();
+            messagingTemplate.convertAndSend(destination, updatedMessage);
+        } catch (Exception e) {
+            log.error("Failed to broadcast edited WebSocket message: {}", e.getMessage(), e);
+        }
+
+        return ResponseEntity.ok(updatedMessage);
     }
 
     @DeleteMapping("/messages/{id}")

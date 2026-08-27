@@ -21,7 +21,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
   const [nextAfterId, setNextAfterId] = useState<number | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load initial messages for active channel
+  // Load initial messages for active channel (Chronological: oldest top -> newest bottom)
   useEffect(() => {
     if (!conversation) return;
 
@@ -30,8 +30,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
 
     messageService.getChannelMessages(conversation.channelId)
       .then((res) => {
-        // Reverse array so oldest is top, newest is bottom
-        setMessages(res.items.reverse());
+        // Items are already in ASC order (oldest first, newest last)
+        setMessages(res.items);
         setHasMore(res.hasMore);
         setNextAfterId(res.nextAfterId);
       })
@@ -63,8 +63,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
 
     try {
       const res = await messageService.getChannelMessages(conversation.channelId, nextAfterId);
-      const olderMessages = res.items.reverse();
-      setMessages((prev) => [...olderMessages, ...prev]);
+      setMessages((prev) => [...res.items, ...prev]);
       setHasMore(res.hasMore);
       setNextAfterId(res.nextAfterId);
     } catch (err) {
@@ -79,7 +78,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation, currentUse
     const content = inputText.trim();
     setInputText('');
 
-    // Optimistic UI update with PENDING state
+    // Optimistic UI update with PENDING state at the bottom
     const tempId = `temp-${Date.now()}`;
     const optimisticMsg: Message = {
       id: Date.now(),

@@ -47,12 +47,12 @@ ON CONFLICT (rw_channel_id, rw_user_id) DO NOTHING;
 -- -----------------------------------------------------------------------------
 -- 4. Insert Initial Sample Messages
 -- -----------------------------------------------------------------------------
-INSERT INTO rw_messages (rw_id, rw_channel_id, rw_sender_id, rw_content, rw_status, rw_is_edited, rw_is_deleted)
+INSERT INTO rw_messages (rw_id, rw_channel_id, rw_sender_id, rw_content, rw_status, rw_is_edited, rw_is_deleted, rw_created_at)
 VALUES 
-    (1, '11111111-1111-1111-1111-111111111111', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Bienvenidos a la nueva plataforma de mensajería interna de Riwi Co. S.A.S.', 'SENT', false, false),
-    (2, '11111111-1111-1111-1111-111111111111', 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '¡Hola equipo! Excelente iniciativa para mejorar la comunicación interna.', 'SENT', false, false),
-    (3, '22222222-2222-2222-2222-222222222222', 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'Recordatorio privado: La migración a PostgreSQL 15 con Row Level Security y pgvector fue completada con éxito.', 'SENT', false, false),
-    (4, '33333333-3333-3333-3333-333333333333', 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Hola Maria, te envié los diseños actualizados del frontend por este chat directo.', 'SENT', false, false)
+    (1, '11111111-1111-1111-1111-111111111111', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Bienvenidos a la nueva plataforma de mensajería interna de Riwi Co. S.A.S.', 'SENT', false, false, now() AT TIME ZONE 'utc' - INTERVAL '10 minutes'),
+    (2, '11111111-1111-1111-1111-111111111111', 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '¡Hola equipo! Excelente iniciativa para mejorar la comunicación interna.', 'SENT', false, false, now() AT TIME ZONE 'utc' - INTERVAL '5 minutes'),
+    (3, '22222222-2222-2222-2222-222222222222', 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'Recordatorio privado: La migración a PostgreSQL 15 con Row Level Security y pgvector fue completada con éxito.', 'SENT', false, false, now() AT TIME ZONE 'utc' - INTERVAL '3 minutes'),
+    (4, '33333333-3333-3333-3333-333333333333', 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Hola Maria, te envié los diseños actualizados del frontend por este chat directo.', 'SENT', false, false, now() AT TIME ZONE 'utc' - INTERVAL '1 minute')
 ON CONFLICT (rw_id) DO NOTHING;
 
 -- Synchronize sequence after manual insertion of primary key IDs

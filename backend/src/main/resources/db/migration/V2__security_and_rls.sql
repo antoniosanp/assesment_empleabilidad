@@ -180,7 +180,7 @@ BEGIN
     WHERE m.rw_channel_id = p_channel_id
       AND m.rw_is_deleted = false
       AND (p_after_id = 0 OR m.rw_id > p_after_id)
-    ORDER BY m.rw_created_at ASC, m.rw_id ASC
+    ORDER BY m.rw_id ASC
     LIMIT p_limit;
 END;
 $$ LANGUAGE plpgsql STABLE;
