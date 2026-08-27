@@ -49,10 +49,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     <div style={styles.dashboardLayout}>
       <Navbar user={user} onOpenProfile={() => setShowProfileModal(true)} />
 
-      {/* Main 3-Zone Container */}
+      {/* Main 3-Zone Fixed Container */}
       <main style={styles.mainContent}>
-        {/* Zona 3 / Sidebar (Canales & Chats) */}
-        <div style={{ ...styles.zoneContainer, display: mobileTab === 'channels' ? 'flex' : undefined }} className="zone-channels">
+        {/* Zona 3 / Sidebar Left (Fixed 280px) */}
+        <div style={styles.leftZoneContainer} className="zone-channels">
           <ChannelSidebar
             conversations={conversations}
             activeChannelId={activeChannelId}
@@ -64,13 +64,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           />
         </div>
 
-        {/* Zona 1 (Ventana de Conversación Chat) */}
-        <div style={{ ...styles.zoneContainer, display: mobileTab === 'chat' ? 'flex' : undefined }} className="zone-chat">
+        {/* Zona 1 / Center Chat Window (Flex 1 fills remaining space) */}
+        <div style={styles.centerZoneContainer} className="zone-chat">
           <ChatWindow conversation={activeConversation} currentUser={user} />
         </div>
 
-        {/* Zona 2 (Panel del Copiloto IA RAG) */}
-        <div style={{ ...styles.zoneContainer, display: mobileTab === 'copilot' ? 'flex' : undefined }} className="zone-copilot">
+        {/* Zona 2 / Copilot Right Panel (Fixed 360px) */}
+        <div style={styles.rightZoneContainer} className="zone-copilot">
           <CopilotPanel />
         </div>
       </main>
@@ -118,13 +118,32 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     overflow: 'hidden',
     position: 'relative',
+    width: '100%',
+    height: 'calc(100vh - 60px)',
   },
-  zoneContainer: {
-    flex: 'none',
+  leftZoneContainer: {
+    width: '280px',
+    minWidth: '280px',
+    maxWidth: '280px',
+    flexShrink: 0,
+    height: '100%',
+  },
+  centerZoneContainer: {
+    flex: 1,
+    minWidth: 0,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  rightZoneContainer: {
+    width: '360px',
+    minWidth: '360px',
+    maxWidth: '360px',
+    flexShrink: 0,
     height: '100%',
   },
   mobileNav: {
-    display: 'none', // Shown in CSS media queries for mobile
+    display: 'none',
     height: '56px',
     backgroundColor: '#FFFFFF',
     borderTop: '1px solid var(--color-border)',

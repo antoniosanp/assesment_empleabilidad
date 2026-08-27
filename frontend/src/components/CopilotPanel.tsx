@@ -130,7 +130,7 @@ export const CopilotPanel: React.FC = () => {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    width: '340px',
+    width: '100%',
     backgroundColor: 'var(--color-surface)',
     borderLeft: '1px solid var(--color-border)',
     display: 'flex',

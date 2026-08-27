@@ -67,7 +67,17 @@ CREATE POLICY rw_pol_messages_insert ON rw_messages
 CREATE OR REPLACE VIEW rw_v_user_conversations AS
 SELECT 
     c.rw_id AS rw_channel_id,
-    c.rw_name AS rw_channel_name,
+    CASE 
+        WHEN c.rw_type = 'DIRECT' THEN COALESCE((
+            SELECT u.rw_full_name 
+            FROM rw_channel_members cm_other 
+            JOIN rw_users u ON cm_other.rw_user_id = u.rw_id 
+            WHERE cm_other.rw_channel_id = c.rw_id 
+              AND cm_other.rw_user_id <> cm.rw_user_id 
+            LIMIT 1
+        ), c.rw_name)
+        ELSE c.rw_name
+    END AS rw_channel_name,
     c.rw_type AS rw_channel_type,
     cm.rw_user_id AS rw_user_id,
     cm.rw_member_role AS rw_member_role,
