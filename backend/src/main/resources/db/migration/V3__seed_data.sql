@@ -8,10 +8,10 @@
 -- -----------------------------------------------------------------------------
 INSERT INTO rw_users (rw_id, rw_email, rw_password_hash, rw_full_name, rw_job_title, rw_role, rw_is_active)
 VALUES 
-    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'admin@riwi.io', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G', 'Admin Sistema', 'System Administrator & Security Lead', 'ADMIN', true),
-    ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'juan.perez@riwi.io', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G', 'Juan Perez', 'Senior Frontend Developer', 'MEMBER', true),
-    ('c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'maria.gomez@riwi.io', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G', 'Maria Gomez', 'Lead Backend Engineer', 'MEMBER', true),
-    ('d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'pedro.soporte@riwi.io', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85WGc3BybNC5BZ7yN6Y6G', 'Pedro Soporte', 'IT Support Specialist', 'MEMBER', true)
+    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'admin@riwi.io', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', 'Admin Sistema', 'System Administrator & Security Lead', 'ADMIN', true),
+    ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'juan.perez@riwi.io', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', 'Juan Perez', 'Senior Frontend Developer', 'MEMBER', true),
+    ('c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'maria.gomez@riwi.io', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', 'Maria Gomez', 'Lead Backend Engineer', 'MEMBER', true),
+    ('d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'pedro.soporte@riwi.io', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', 'Pedro Soporte', 'IT Support Specialist', 'MEMBER', true)
 ON CONFLICT (rw_id) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
