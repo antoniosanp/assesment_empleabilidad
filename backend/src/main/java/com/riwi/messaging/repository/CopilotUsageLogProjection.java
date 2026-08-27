@@ -1,6 +1,6 @@
 package com.riwi.messaging.repository;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface CopilotUsageLogProjection {
@@ -9,5 +9,5 @@ public interface CopilotUsageLogProjection {
     String getJobTitle();
     Long getTotalQueries();
     Long getTotalTokensUsed();
-    OffsetDateTime getLastQueryAt();
+    Instant getLastQueryAt();
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class MessageService {
                         .status(p.getStatus())
                         .isEdited(p.getIsEdited())
                         .isDeleted(false)
-                        .createdAt(p.getCreatedAt())
+                        .createdAt(p.getCreatedAt() != null ? p.getCreatedAt().atOffset(ZoneOffset.UTC) : null)
                         .build())
                 .collect(Collectors.toList());
 
@@ -160,7 +161,7 @@ public class MessageService {
                         .senderName(p.getSenderName())
                         .content(p.getContent())
                         .highlightedSnippet(p.getHighlightedSnippet())
-                        .createdAt(p.getCreatedAt())
+                        .createdAt(p.getCreatedAt() != null ? p.getCreatedAt().atOffset(ZoneOffset.UTC) : null)
                         .build())
                 .collect(Collectors.toList());
     }

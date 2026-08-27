@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,10 +36,10 @@ public class ChannelService {
                         .channelType(p.getChannelType())
                         .userId(p.getUserId())
                         .memberRole(p.getMemberRole())
-                        .lastReadAt(p.getLastReadAt())
+                        .lastReadAt(p.getLastReadAt() != null ? p.getLastReadAt().atOffset(ZoneOffset.UTC) : null)
                         .lastMessageId(p.getLastMessageId())
                         .lastMessageContent(p.getLastMessageContent())
-                        .lastMessageAt(p.getLastMessageAt())
+                        .lastMessageAt(p.getLastMessageAt() != null ? p.getLastMessageAt().atOffset(ZoneOffset.UTC) : null)
                         .lastMessageSenderId(p.getLastMessageSenderId())
                         .unreadCount(p.getUnreadCount())
                         .build())

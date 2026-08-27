@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -108,7 +108,7 @@ public class CopilotService {
                         .jobTitle(p.getJobTitle())
                         .totalQueries(p.getTotalQueries())
                         .totalTokensUsed(p.getTotalTokensUsed())
-                        .lastQueryAt(p.getLastQueryAt())
+                        .lastQueryAt(p.getLastQueryAt() != null ? p.getLastQueryAt().atOffset(ZoneOffset.UTC) : null)
                         .build())
                 .collect(Collectors.toList());
     }

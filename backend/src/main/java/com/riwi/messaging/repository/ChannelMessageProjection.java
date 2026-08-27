@@ -1,6 +1,6 @@
 package com.riwi.messaging.repository;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface ChannelMessageProjection {
@@ -11,5 +11,5 @@ public interface ChannelMessageProjection {
     String getContent();
     String getStatus();
     Boolean getIsEdited();
-    OffsetDateTime getCreatedAt();
+    Instant getCreatedAt();
 }

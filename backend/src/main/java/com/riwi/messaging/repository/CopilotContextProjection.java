@@ -1,6 +1,6 @@
 package com.riwi.messaging.repository;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface CopilotContextProjection {
@@ -10,6 +10,6 @@ public interface CopilotContextProjection {
     String getSenderName();
     String getSenderJobTitle();
     String getContent();
-    OffsetDateTime getCreatedAt();
+    Instant getCreatedAt();
     Double getSimilarity();
 }

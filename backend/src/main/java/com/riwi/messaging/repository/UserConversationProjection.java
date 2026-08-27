@@ -1,6 +1,6 @@
 package com.riwi.messaging.repository;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface UserConversationProjection {
@@ -9,10 +9,10 @@ public interface UserConversationProjection {
     String getChannelType();
     UUID getUserId();
     String getMemberRole();
-    OffsetDateTime getLastReadAt();
+    Instant getLastReadAt();
     Long getLastMessageId();
     String getLastMessageContent();
-    OffsetDateTime getLastMessageAt();
+    Instant getLastMessageAt();
     UUID getLastMessageSenderId();
     Long getUnreadCount();
 }

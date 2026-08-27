@@ -1,6 +1,6 @@
 package com.riwi.messaging.repository;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface MessageSearchProjection {
@@ -10,5 +10,5 @@ public interface MessageSearchProjection {
     String getSenderName();
     String getContent();
     String getHighlightedSnippet();
-    OffsetDateTime getCreatedAt();
+    Instant getCreatedAt();
 }
