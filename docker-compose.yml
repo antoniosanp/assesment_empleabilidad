@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  postgres:
+  db:
     image: pgvector/pgvector:pg16
     container_name: riwi_postgres_db
     restart: always
@@ -19,6 +17,36 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: riwi_backend_app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-bd_antonio_pulgarin_hamilton}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gemini-3.6-flash}
+      COPILOT_PROVIDER: ${COPILOT_PROVIDER:-gemini}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: riwi_frontend_app
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
