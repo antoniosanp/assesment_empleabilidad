@@ -36,6 +36,13 @@ jwt:
   expiration: ${JWT_EXPIRATION_MS:900000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
+copilot:
+  provider: ${COPILOT_PROVIDER:gemini}
+
+gemini:
+  api-key: ${OPENAI_API_KEY:${GEMINI_API_KEY:}}
+  model: ${OPENAI_MODEL:${GEMINI_MODEL:gemini-3.6-flash}}
+
 openai:
-  api-key: ${OPENAI_API_KEY:your_openai_api_key_here}
-  model: ${OPENAI_MODEL:gpt-4o-mini}
+  api-key: ${OPENAI_API_KEY:}
+  model: ${OPENAI_MODEL:gemini-3.6-flash}

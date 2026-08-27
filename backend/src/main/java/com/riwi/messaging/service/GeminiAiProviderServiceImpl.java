@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@ConditionalOnProperty(name = "copilot.provider", havingValue = "gemini", matchIfMissing = false)
+@ConditionalOnProperty(name = "copilot.provider", havingValue = "gemini", matchIfMissing = true)
 @Slf4j
 public class GeminiAiProviderServiceImpl implements AiProviderService {
 
@@ -23,7 +23,7 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
 
     public GeminiAiProviderServiceImpl(
             @Value("${gemini.api-key:${openai.api-key:}}") String apiKey,
-            @Value("${gemini.model:gemini-1.5-flash}") String modelName
+            @Value("${gemini.model:${openai.model:gemini-3.6-flash}}") String modelName
     ) {
         this.apiKey = apiKey;
         this.modelName = modelName;
@@ -58,7 +58,7 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
         );
 
         if (apiKey == null || apiKey.isBlank() || apiKey.contains("your_")) {
-            log.warn("Gemini API key is not configured. Falling back to structured response.");
+            log.warn("Gemini API key is not configured. Falling back to mock structured response.");
             return new AiCompletionResult(
                     "Respuesta de prueba (Gemini AI Studio): Basado en los " + contextMessages.size() + " mensajes recuperados para " + authenticatedUser.getFullName() + ", confirmo la consulta sobre: " + userQuery,
                     150
@@ -85,7 +85,7 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
             return new AiCompletionResult(answerText, calculateApproxTokens(fullPrompt + answerText));
 
         } catch (Exception e) {
-            log.error("Error calling Gemini API: {}", e.getMessage(), e);
+            log.error("Error calling Google AI Studio Gemini API: {}", e.getMessage(), e);
             return new AiCompletionResult(
                     "Error al comunicarse con Google AI Studio. Error: " + e.getMessage(),
                     0

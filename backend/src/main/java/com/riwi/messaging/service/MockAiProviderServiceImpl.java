@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@ConditionalOnProperty(name = "copilot.provider", havingValue = "mock", matchIfMissing = true)
+@ConditionalOnProperty(name = "copilot.provider", havingValue = "mock", matchIfMissing = false)
 public class MockAiProviderServiceImpl implements AiProviderService {
 
     @Override
