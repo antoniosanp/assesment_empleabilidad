@@ -20,7 +20,7 @@ import java.util.Map;
 public class GeminiAiProviderServiceImpl implements AiProviderService {
 
     private final String apiKey;
-    private final String modelName;
+    private final String defaultModelName;
     private final RestClient restClient;
 
     public GeminiAiProviderServiceImpl(
@@ -36,11 +36,11 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
         }
 
         this.apiKey = effectiveKey;
-        this.modelName = (modelName != null && !modelName.isBlank()) ? modelName : "gemini-3.6-flash";
+        this.defaultModelName = (modelName != null && !modelName.isBlank()) ? modelName : "gemini-3.6-flash";
         this.restClient = RestClient.builder().build();
 
         if (this.apiKey != null && !this.apiKey.isBlank()) {
-            log.info("GeminiAiProviderServiceImpl initialized with LIVE Google AI Studio key (Model: {})", this.modelName);
+            log.info("GeminiAiProviderServiceImpl initialized with LIVE Google AI Studio key (Default Model: {})", this.defaultModelName);
         } else {
             log.warn("Gemini API key is missing. AI queries will use fallback mock.");
         }
@@ -69,7 +69,7 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
 
     @Override
     public String getProviderName() {
-        return "Google AI Studio (Gemini - " + modelName + ")";
+        return "Google AI Studio (Gemini - " + defaultModelName + ")";
     }
 
     @Override
@@ -102,33 +102,45 @@ public class GeminiAiProviderServiceImpl implements AiProviderService {
             );
         }
 
-        try {
-            log.info("Sending live query to Google AI Studio Gemini API (Model: {})", modelName);
-            String url = String.format("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", modelName, apiKey);
+        // List of candidate models to try in sequence if 503 high demand occurs
+        List<String> modelsToTry = List.of(defaultModelName, "gemini-2.5-flash", "gemini-1.5-flash");
+        Exception lastException = null;
 
-            Map<String, Object> requestBody = Map.of(
-                    "contents", List.of(
-                            Map.of("parts", List.of(Map.of("text", fullPrompt)))
-                    )
-            );
+        for (String targetModel : modelsToTry) {
+            try {
+                log.info("Sending live query to Google AI Studio Gemini API (Model: {})", targetModel);
+                String url = String.format("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", targetModel, apiKey);
 
-            Map<?, ?> response = restClient.post()
-                    .uri(url)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(requestBody)
-                    .retrieve()
-                    .body(Map.class);
+                Map<String, Object> requestBody = Map.of(
+                        "contents", List.of(
+                                Map.of("parts", List.of(Map.of("text", fullPrompt)))
+                        )
+                );
 
-            String answerText = extractTextFromGeminiResponse(response);
-            return new AiCompletionResult(answerText, calculateApproxTokens(fullPrompt + answerText));
+                Map<?, ?> response = restClient.post()
+                        .uri(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestBody)
+                        .retrieve()
+                        .body(Map.class);
 
-        } catch (Exception e) {
-            log.error("Error calling Google AI Studio Gemini API: {}", e.getMessage(), e);
-            return new AiCompletionResult(
-                    "Error al comunicarse con Google AI Studio. Error: " + e.getMessage(),
-                    0
-            );
+                String answerText = extractTextFromGeminiResponse(response);
+                return new AiCompletionResult(answerText, calculateApproxTokens(fullPrompt + answerText));
+
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("Model {} failed with error: {}. Trying fallback model if available...", targetModel, e.getMessage());
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ignored) {}
+            }
         }
+
+        log.error("All Gemini models failed: {}", lastException != null ? lastException.getMessage() : "Unknown error", lastException);
+        return new AiCompletionResult(
+                "Google AI Studio está experimentando una alta demanda temporal en sus servidores (Error 503 Service Unavailable). Por favor intenta de nuevo en unos segundos.",
+                0
+        );
     }
 
     @SuppressWarnings("unchecked")
